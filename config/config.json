@@ -1,0 +1,24 @@
+{
+  "development": {
+    "username": "postgres",
+    "password": "congo",
+    "database": "sports_cal_dev",
+    "host": "127.0.0.1",
+    "dialect": "postgres"
+  },
+  "test": {
+    "username": "postgres",
+    "password": "congo",
+    "database": "sports_cal_test",
+    "host": "127.0.0.1",
+    "dialect": "mysql",
+    "logging": false
+  },
+  "production": {
+    "username": "postgres",
+    "password": "congo",
+    "database": "database_production",
+    "host": "127.0.0.1",
+    "dialect": "mysql"
+  }
+}
