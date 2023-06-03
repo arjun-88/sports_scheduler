@@ -11,8 +11,14 @@ module.exports = (sequelize, DataTypes) => {
      */
     static associate(models) {
       // define association here
+      Session.belongsTo(models.Sport, { foreignKey: "sportId" });
+      Session.belongsTo(models.User, { foreignKey: "creatorID" });
+      Session.hasMany(models.SessionPlayer, { foreignKey: "sessionId" });
     }
   }
+
+  
+
   Session.init({
     creatorId: DataTypes.STRING,
     when: DataTypes.STRING,
