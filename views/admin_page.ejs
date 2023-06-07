@@ -12,20 +12,32 @@
     <body>
         <div class = "grid grid-cols-6">
             <div class="col-start-3 col-span-2">
+                <p> welcome <%= user.name %></p>
+
                 <%- include('header.ejs') %>
                 <a href="create_sport">Create New Sport</a>
-                
-
+                <a href="create_session">Create New Session</a>
                 <div>
                     <h2>Available Sports</h2>
                     <%for(var i=0; i<sports.length; i++) { %>
                         <li>
-                            <%i= sports[i] %><br>
+                            <%= sports[i].sport %><br>
                         </li>
 
                     <% } %>
                 </div>
+                
+                
+                <div>
+                    <h2>Available Session</h2>
+                    <%for(var i=0; i<Session.length; i++) { %>
+                        <li>
+                            <%= Session[i] %><br>
+                        </li>
 
+                    <% } %>
+                </div>
+            </div>
         </div>
          
         <br/>

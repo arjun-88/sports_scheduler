@@ -11,11 +11,14 @@ app.use(bodyParser.json());
 app.use(express.urlencoded({ extended: false }));
 app.use(express.static(path.join(__dirname, "public")));
 const flash = require("connect-flash");
+const session = require("express-session");
+
 //res.render(req.flash(type, message));
 
 const passport = require("passport");
-//const connectionEnsureLogin = require("connect-ensure-login");
-const session = require("express-session");
+app.use(flash());
+const connectEnsureLogin = require("connect-ensure-login");
+
 const LocalStrategy = require("passport-local");
 const bcrypt = require("bcrypt");
 
@@ -49,6 +52,10 @@ passport.deserializeUser((id, done) => {
 });
 
 const { User, Sport, Session, SessionPlayer, sequelize, Sequelize } = require("./models");
+const sessionplayer = require("./models/sessionplayer");
+const { promiseHooks } = require("v8");
+const sport = require("./models/sport");
+//const { Session } = require("inspector");
 app.set("view engine", "ejs");
 app.get("/", async (request, response) => {
   response.render("index", {
@@ -67,30 +74,46 @@ app.get("/signup", async (request, response) => {
 app.get("/admin_signup", async (request, response) => {
   response.render("admin_signup", {
     title: "admin_signup",
-    
+    user: request.user,
   });
 });
 
 app.get("/player_signup", async (request, response) => {
+
   response.render("player_signup", {
     title: "player_signup",
-    
+    user: request.user,    
   });
 });
 
+app.get("/create_session", connectEnsureLogin.ensureLoggedIn(),async (request, response) => {
+  response.render("create_session", {
+    title:"create_session",
+    id:request.params.id,
+  })
+})
+
 app.get("/admin_page", isAuthenticated, async (request, response) => {
   const sports= await Sport.getsports();
- //const getuser = await User.getUser(request.user.id);
-  //console.log(request.User.id);
+  const getuser = await User.getUser(request.user.id);
+  const session = await Session.findAll(); 
+  console.log("session")
+  console.log(session);
   if (request.accepts("html")) {
     response.render("admin_page", {
       title: "admin_page", 
-      sports,   
+      sports,
+      user: getuser,
+      id: request.user.id,
+      Session : session,
     });
   } else {
     response.json({
       title: "admin_page", 
       sports,
+      user: getuser,
+      id:id,
+      Session : session,
     })
   }
 });
@@ -122,8 +145,8 @@ app.post(
     failureFlash: true,
   }),
   function async (request, response) {
-    console.log(request.user);
-    console.log(request.user);
+    //console.log(request.user);
+    //console.log(request.user);
     if (request.user.isAdmin){
     response.redirect(200,"/admin_page");
     } else {
@@ -184,7 +207,7 @@ passport.use(
         console.log(err);
       }
       if (type_user){
-        console.log(user);
+        //console.log(user);
         response.redirect("/admin_page");
       } else{
         response.redirect("/player_page",);
@@ -200,31 +223,119 @@ passport.use(
 
 app.post("/sport", async (request, response) => {
   try {
-    const sport = await Sport.create({
+    await Sport.create({
       sport: request.body.sport,
-      creatorId: request.User.id,
+      //creatorId: request.user.id,
 
     });
-    request.login(user, (err) => {
-      if (err) {
-        console.log(err);
-      }
-      if (type_user){
-        response.redirect("/admin_page");
-      } else{
-        response.redirect("/player_page");
-      }
-    });
+    response.redirect("admin_page");
+    
   } catch (error) {
     console.log(error);
   }
 });
+
+app.post("/session", async (request, response) => {
+  console.log("122333")
+  try {
+    console.log("working");
+    
+  } catch (error) {
+    console.log(error);
+  }
+});
+
+app.post("/create_session", isAuthenticated, async (request, response) => {
+  console.log("000000000");
+  try {
+    console.log("1111111111");
+
+    const id = request.params.id;
+    const Dategiven = new Date(request.body.when);
+    today = new Date()
+    if (Dategiven < today){
+      request.flash("error","past date");
+      return response.redirect(`/create_session/${id}`);
+    }
+    const when = formatedDate(request.body.when);
+    const venue = request.body.venue;
+    console.log("222222222");
+    const newsession = await Session.create({
+      sportId:id,
+      creatorId : request.user.id,
+      venue: venue,
+      when : when,
+      count: request.body.requiredteammembers,
+    })
+    console.log("3333333333");
+    let allnames = request.body.players;
+
+    //const players = allnames.split(",").map((x) => x.trim()).filter();
+    const players = allnames.split(",").map((x) => x.trim()).filter((x) => x !== '');
+
+    await SessionPlayer.create({
+      name: request.body.name,
+      sessionId : newsession.id,
+      userId: request.user.id,
+    });
+
+    await Promise.all([
+      SessionPlayer.create({
+        name: players[0],
+        sessionId : request.user.id,
+      }),
+      ...players.slice(1).map((name) => 
+      SessionPlayer.create({
+        name : name,
+        sessionId: newsession.id,
+      })
+      ),
+    ])
+    const sesplayers =await SessionPlayer.findAll({
+      where: { sessionId : newsession.id},
+    });
+
+    const sport = await Sport.findByPk(id);
+
+    response.redirect(`/create_session`);
+  }  
+  catch (error) {
+    console.log(error);
+  }
+})
 
 function isAuthenticated(request, response, next) {
   if (request.isAuthenticated()) {
     return next();
   }
   response.redirect("/signup");
+}
+
+function formatedDate(dateInput) {
+  const date = new Date(dateInput);
+  const todate =
+    date.getFullYear() +
+    "-" +
+    ("0" + (date.getMonth() + 1)).slice(-2) +
+    "-" +
+    ("0" + date.getDate()).slice(-2) +
+    " " +
+    ("0" + date.getHours()).slice(-2) +
+    ":" +
+    ("0" + date.getMinutes()).slice(-2) +
+    ":" +
+    ("0" + date.getSeconds()).slice(-2) +
+    "." +
+    ("00" + date.getMilliseconds()).slice(-3) +
+    "+05:30";
+
+  return todate;
+}
+function Timesstamp(timestamp) {
+  const date = moment.tz(timestamp, "Asia/Kolkata");
+  const tome_stamp = date.format("DD/MM/YYYY HH:mm");
+
+  return time_stamp;
 }
 
 

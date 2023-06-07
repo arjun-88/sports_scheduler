@@ -17,7 +17,8 @@ module.exports = (sequelize, DataTypes) => {
   }
   SessionPlayer.init({
     name: DataTypes.STRING,
-    sessionId: DataTypes.INTEGER
+    sessionId: DataTypes.INTEGER,
+    userId: DataTypes.INTEGER
   }, {
     sequelize,
     modelName: 'SessionPlayer',

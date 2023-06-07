@@ -11,16 +11,15 @@ module.exports = (sequelize, DataTypes) => {
      */
     static associate(models) {
       // define association here
-      Session.belongsTo(models.Sport, { foreignKey: "sportId" });
-      Session.belongsTo(models.User, { foreignKey: "creatorID" });
+      Session.belongsTo(models.Sport, { foreignKey: 'sportId' });
+      Session.belongsTo(models.User, { foreignKey: "creatorId" });
       Session.hasMany(models.SessionPlayer, { foreignKey: "sessionId" });
+      
     }
   }
-
-  
-
   Session.init({
-    creatorId: DataTypes.STRING,
+    sportId: DataTypes.INTEGER,
+    creatorId: DataTypes.INTEGER,
     when: DataTypes.STRING,
     venue: DataTypes.STRING,
     iscanceled: DataTypes.STRING,
@@ -28,6 +27,7 @@ module.exports = (sequelize, DataTypes) => {
   }, {
     sequelize,
     modelName: 'Session',
+    tableName: 'Sessions',
   });
   return Session;
-};
+};  
