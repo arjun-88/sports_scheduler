@@ -19,6 +19,6 @@
     "password": "congo",
     "database": "database_production",
     "host": "127.0.0.1",
-    "dialect": "postgresl"
+    "dialect": "postgres"
   }
 }
