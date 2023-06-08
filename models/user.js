@@ -12,15 +12,12 @@ module.exports = (sequelize, DataTypes) => {
     static associate(models) {
       // define association here
     }
-    static async getUser(id){
-      return this,this.findByPk(id);
-    }
   }
   User.init({
     name: DataTypes.STRING,
     email: DataTypes.STRING,
     password: DataTypes.STRING,
-    isAdmin: DataTypes.STRING
+    isAdmin: DataTypes.BOOLEAN
   }, {
     sequelize,
     modelName: 'User',
