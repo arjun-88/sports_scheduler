@@ -16,6 +16,16 @@
 
                 <%- include('header.ejs') %>
                 
+                <div>
+                    <h2>Available Sports</h2>
+                    <%for(var i=0; i<sports.length; i++) { %>
+                        <li>
+                            <%= sports[i].sport %><br>
+                        </li>
+
+                    <% } %>
+                </div>
+
                 </div>
 
         </div>

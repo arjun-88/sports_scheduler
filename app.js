@@ -119,8 +119,14 @@ app.get("/admin_page", isAuthenticated, async (request, response) => {
 });
 
 app.get("/player_page", async (request, response) => {
+  const sports= await Sport.getsports();
+  const getuser = await User.getUser(request.user.id);
+  const session = await Session.findAll(); 
   response.render("player_page", {
     title: "player_page",
+    user: getuser,
+    id: request.user.id,
+    Session : session,
     
   });
 });
@@ -145,12 +151,12 @@ app.post(
     failureFlash: true,
   }),
   function async (request, response) {
-    //console.log(request.user);
+    console.log(request.user);
     //console.log(request.user);
     if (request.user.isAdmin){
-    response.redirect(200,"/admin_page");
+    response.redirect("/admin_page");
     } else {
-      response.redirect(200,"/player_page");
+      response.redirect("/player_page");
     }}
 );
 

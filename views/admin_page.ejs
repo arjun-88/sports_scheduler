@@ -15,8 +15,10 @@
                 <p> welcome <%= user.name %></p>
 
                 <%- include('header.ejs') %>
-                <a href="create_sport">Create New Sport</a>
-                <a href="create_session">Create New Session</a>
+                <div class="flex justify-end">
+                    <a href="create_sport" class="text-blue-500">Create New Sport</a><br>
+                    <a href="create_session" class="text-blue-500">Create New Session</a>
+                  </div>
                 <div>
                     <h2>Available Sports</h2>
                     <%for(var i=0; i<sports.length; i++) { %>
