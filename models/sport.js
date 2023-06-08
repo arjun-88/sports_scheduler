@@ -17,9 +17,7 @@ module.exports = (sequelize, DataTypes) => {
     static async getsports() {
       return this.findAll();
     }
-    static getUser(id){
-      return this.findByPk(id);
-    }
+    
   }
 
   
